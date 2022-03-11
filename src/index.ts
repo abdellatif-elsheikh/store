@@ -1,3 +1,6 @@
-const greeting = 'hello world!'
+const greeting = 'hello world!';
+function a(): string {
+  return greeting;
+}
 
-console.log(greeting);
+a();
