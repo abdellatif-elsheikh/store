@@ -1,6 +1,16 @@
-const greeting = 'hello world!';
-function a(): string {
-  return greeting;
-}
+import express, { Application, Request, Response } from 'express';
+const PORT = 5000;
 
-a();
+const app: Application = express();
+
+app.listen(PORT, () => {
+  console.log(`server is running at port: ${PORT}`);
+});
+
+app.get('/', (req: Request, res: Response) => {
+  res.json({
+    message: 'Hello world!',
+  });
+});
+
+export default app;
