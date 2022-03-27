@@ -1,43 +1,28 @@
-import express, { Application, request, Request, response, Response } from 'express';
-import morgan from 'morgan';
-import helmet from 'helmet';
-import rateLimit from 'express-rate-limit';
+import express, { Application, Request, Response } from 'express';
 import config from './config';
-import errorMiddleware from './middlewares/error.middleware';
+import middlewares from './middlewares';
 
 const PORT = config.port || 3000;
 
 const app: Application = express();
-// add middleware to parse incoming requests
-app.use(express.json());
-// security
 
-// add http request logger middleware
-app.use(morgan('common'));
-// http security middleware
-app.use(helmet());
-// error handler middleware
-// create limit for api requests
-const limiter = rateLimit({
-  windowMs: 2 * 60 * 1000,
-  max: 50,
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: 'to many requests please try agin after two mints',
-});
-app.use(limiter);
+app.use(
+  express.json(),
+  middlewares.helmetExport,
+  middlewares.morganExport,
+  middlewares.limiter
+);
 
 // ----------------------------------------------------------
 // ------------------------ ROUTS ---------------------------
 // add get request
-app.get('/', (_req: Request, res: Response) => {
-  throw new Error('error exist')
+app.get('/', (_req: Request, res: Response): void => {
   res.json({
     message: 'Hello world!',
   });
 });
 // add post route
-app.post('/', (req: Request, res: Response) => {
+app.post('/', (req: Request, res: Response): void => {
   req.body = {
     hamda: 'mosh hamada',
   };
@@ -47,17 +32,19 @@ app.post('/', (req: Request, res: Response) => {
   });
 });
 
-app.use(errorMiddleware)
-app.use((_req: Request, res: Response) => {
+app.use((_req: Request, res: Response): void => {
   res.status(404).json({
-    message: 'you are lost you can go back to Home http://localhost:5000/'
-  })
-})
+    message: 'you are lost you can go back to Home http://localhost:5000/',
+  });
+});
+
+// Error handling middleware
+app.use(middlewares.errorMiddleware);
 
 // -------------------------------------------------
 // -------------------------------------------------
 // start server---------------------------------------
-app.listen(PORT, () => {
+app.listen(PORT, (): void => {
   console.log(`server is running at port: ${PORT}`);
 });
 
