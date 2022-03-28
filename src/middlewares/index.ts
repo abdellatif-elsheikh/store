@@ -1,3 +1,4 @@
+import { Request, Response } from 'express';
 import morgan from 'morgan';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
@@ -20,9 +21,16 @@ const limiter = rateLimit({
   message: 'to many requests please try agin after two mints',
 });
 
+const error_404 = (_req: Request, res: Response): void => {
+  res.status(404).json({
+    message: 'you are lost you can go back to Home http://localhost:5000/',
+  });
+};
+
 export default {
   morganExport,
   helmetExport,
   limiter,
   errorMiddleware,
+  error_404,
 };

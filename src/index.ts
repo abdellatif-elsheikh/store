@@ -1,6 +1,7 @@
 import express, { Application, Request, Response } from 'express';
 import config from './config';
 import middlewares from './middlewares';
+import routes from './routes';
 
 const PORT = config.port || 3000;
 
@@ -13,6 +14,9 @@ app.use(
   middlewares.limiter
 );
 
+// * using routes
+app.use('/api', routes);
+
 // ----------------------------------------------------------
 // ------------------------ ROUTS ---------------------------
 // add get request
@@ -21,25 +25,10 @@ app.get('/', (_req: Request, res: Response): void => {
     message: 'Hello world!',
   });
 });
-// add post route
-app.post('/', (req: Request, res: Response): void => {
-  req.body = {
-    hamda: 'mosh hamada',
-  };
-  res.json({
-    message: 'hello world from post request',
-    data: req.body,
-  });
-});
 
-app.use((_req: Request, res: Response): void => {
-  res.status(404).json({
-    message: 'you are lost you can go back to Home http://localhost:5000/',
-  });
-});
-
-// Error handling middleware
-app.use(middlewares.errorMiddleware);
+// ! DONT MOVE THOSE MIDDLEWARES TO THE TOP
+// Error handling middlewares
+app.use(middlewares.errorMiddleware, middlewares.error_404);
 
 // -------------------------------------------------
 // -------------------------------------------------
