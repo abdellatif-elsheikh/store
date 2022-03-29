@@ -1,6 +1,13 @@
 import User from '../types/user.type';
 import db from '../database';
 import Error from '../interfaces/error.interface';
+import bcrypt from 'bcrypt';
+import config from '../config';
+
+const hashPassword = (password: string): string => {
+  const salt = parseInt(config.salt as string, 10);
+  return bcrypt.hashSync(`${password}${config.pepper}`, salt);
+};
 
 class UserModel {
   /**
@@ -22,10 +29,9 @@ class UserModel {
         u.first_name,
         u.last_name,
         u.email,
-        u.password,
+        hashPassword(u.password),
       ]);
       conn.release();
-      console.log(result);
 
       return result.rows[0];
     } catch (error) {
@@ -76,7 +82,7 @@ class UserModel {
         u.first_name,
         u.last_name,
         u.email,
-        u.password,
+        hashPassword(u.password),
         u.user_id,
       ]);
       conn.release();
