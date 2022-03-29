@@ -15,8 +15,8 @@ class UserModel {
    * * select all users
    * * get specific user
    * * update user information
-   * TODO:
    * * delete user
+   * TODO:
    * * authenticate user
    */
   // create new user
@@ -108,6 +108,42 @@ class UserModel {
       throw new Error(
         `can't delete this user\n Error: ${(error as Error).message}`
       );
+    }
+  }
+
+  async authenticate({
+    email,
+    password,
+  }: {
+    email: string;
+    password: string;
+  }): Promise<User | null> {
+    try {
+      const conn = await db.connect();
+      const sql = 'SELECT password FROM users where email=$1';
+      const result = await conn.query(sql, [email]);
+      // check if the user is exist to then compare the password
+      if (result.rows.length) {
+        const { password: hashPassword } = result.rows[0];
+        const isPasswordValid = bcrypt.compareSync(
+          `${password}${config.pepper}`,
+          hashPassword
+        );
+
+        if (isPasswordValid) {
+          const userInfo = await conn.query(
+            `SELECT user_id, first_name, last_name, email
+          FROM users WHERE email=$1`,
+            [email]
+          );
+          conn.release();
+          return userInfo.rows[0];
+        }
+      }
+      conn.release();
+      return null;
+    } catch (error) {
+      throw new Error(`unable to login\n ${(error as Error).message}`);
     }
   }
 }

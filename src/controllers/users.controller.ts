@@ -1,4 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
+import jwt from 'jsonwebtoken';
+import config from '../config';
 import UserModel from '../models/user.model';
 
 const userModel = new UserModel();
@@ -82,7 +84,31 @@ export const deleteUser = async (
     await userModel.delete(id as string);
     res.json({
       status: 200,
-      message1: 'user deleted successfully',
+      message: 'user deleted successfully',
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const authenticate = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const user = await userModel.authenticate(req.body);
+    const token = jwt.sign({ user }, config.token as string);
+    if (user) {
+      res.json({
+        status: 200,
+        message: 'logged in successfully',
+        data: { ...user, token },
+      });
+    }
+    res.json({
+      status: 401,
+      message: 'your email or password is incorrect',
     });
   } catch (error) {
     next(error);
