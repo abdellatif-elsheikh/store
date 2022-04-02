@@ -9,10 +9,10 @@ export const create = async (
   req: Request,
   res: Response,
   next: NextFunction
-): Promise<void> => {
+) => {
   try {
     const user = await userModel.create(req.body);
-    res.json({
+    return res.json({
       data: { ...user },
       status: 200,
       message: 'user created successfully',
@@ -29,8 +29,8 @@ export const getMany = async (
 ) => {
   try {
     const result = await userModel.getMany();
-    res.json({
-      data: { ...result },
+    return res.json({
+      data: [...result],
       status: 200,
     });
   } catch (error) {
@@ -46,9 +46,8 @@ export const getOne = async (
   try {
     const userId = req.params.id;
     const user = await userModel.getOne(userId as string);
-    console.log(user);
 
-    res.json({
+    return res.json({
       data: { ...user },
       status: 200,
     });
@@ -64,7 +63,7 @@ export const update = async (
 ) => {
   try {
     const user = await userModel.update(req.body);
-    res.json({
+    return res.json({
       status: 200,
       message: 'user info has ben updated',
       data: { ...user },
@@ -82,7 +81,7 @@ export const deleteUser = async (
   try {
     const id = req.params.id;
     await userModel.delete(id as string);
-    res.json({
+    return res.json({
       status: 200,
       message: 'user deleted successfully',
     });
@@ -100,13 +99,13 @@ export const authenticate = async (
     const user = await userModel.authenticate(req.body);
     const token = jwt.sign({ user }, config.token as string);
     if (user) {
-      res.json({
+      return res.json({
         status: 200,
         message: 'logged in successfully',
         data: { ...user, token },
       });
     }
-    res.json({
+    return res.status(401).json({
       status: 401,
       message: 'your email or password is incorrect',
     });

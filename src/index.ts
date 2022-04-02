@@ -34,6 +34,7 @@ app.use(middlewares.errorMiddleware, middlewares.error_404);
 // -------------------------------------------------
 // start server---------------------------------------
 app.listen(PORT, (): void => {
+  // eslint-disable-next-line no-console
   console.log(`server is running at port: ${PORT}`);
 });
 

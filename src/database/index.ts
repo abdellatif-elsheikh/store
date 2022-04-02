@@ -11,6 +11,7 @@ const pool = new Pool({
 });
 
 pool.on('error', (error: Error) => {
+  // eslint-disable-next-line no-console
   console.error(error.message);
 });
 
